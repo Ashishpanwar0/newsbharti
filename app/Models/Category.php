@@ -16,12 +16,18 @@ class Category extends Model
         'sort_order',
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+        'show_in_header' => 'boolean',
+    ];
+
     public function subcategories(): HasMany
     {
         return $this->hasMany(Subcategory::class);
     }
-    public function news()
-{
-    return $this->hasMany(News::class);
-}
+
+    public function news(): HasMany
+    {
+        return $this->hasMany(News::class);
+    }
 }

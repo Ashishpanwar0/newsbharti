@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    // Show categories and subcategories on one page
     public function index(Request $request)
     {
         $categories = Category::with('subcategories')
@@ -27,7 +26,6 @@ class CategoryController extends Controller
         ));
     }
 
-    // Create category
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -54,13 +52,15 @@ class CategoryController extends Controller
 
         Category::create($data);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Category created successfully.');
     }
 
-    // Create subcategory inside a category
-    public function storeSubcategory(Request $request, Category $category)
-    {
+    public function storeSubcategory(
+        Request $request,
+        Category $category
+    ) {
         $data = $request->validate([
             'name' => 'required|string|max:255',
         ]);
@@ -88,19 +88,20 @@ class CategoryController extends Controller
 
         Subcategory::create($data);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Subcategory created successfully.');
     }
 
-    // Open category edit page
     public function edit(Category $category)
     {
         return view('admin.categories-edit', compact('category'));
     }
 
-    // Update category
-    public function update(Request $request, Category $category)
-    {
+    public function update(
+        Request $request,
+        Category $category
+    ) {
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -126,11 +127,11 @@ class CategoryController extends Controller
 
         $category->update($data);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Category updated successfully.');
     }
 
-    // Update subcategory on the same page
     public function updateSubcategory(
         Request $request,
         Subcategory $subcategory
@@ -148,7 +149,8 @@ class CategoryController extends Controller
         }
 
         if (
-            $subcategory->category->subcategories()
+            $subcategory->category
+                ->subcategories()
                 ->where('slug', $data['slug'])
                 ->where('id', '!=', $subcategory->id)
                 ->exists()
@@ -160,11 +162,11 @@ class CategoryController extends Controller
 
         $subcategory->update($data);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Subcategory updated successfully.');
     }
 
-    // Delete category after checking related data
     public function destroy(Category $category)
     {
         if ($category->subcategories()->exists()) {
@@ -181,11 +183,11 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Category deleted successfully.');
     }
 
-    // Delete subcategory after checking related news
     public function destroySubcategory(Subcategory $subcategory)
     {
         if ($subcategory->news()->exists()) {
@@ -196,7 +198,8 @@ class CategoryController extends Controller
 
         $subcategory->delete();
 
-        return redirect()->route('admin.categories.index')
+        return redirect()
+            ->route('admin.categories.index')
             ->with('success', 'Subcategory deleted successfully.');
     }
 }

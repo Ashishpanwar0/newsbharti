@@ -2,24 +2,89 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Models\Category;
+use App\Models\Subcategory;
+use App\Models\News;
 
-// Dashboard
+
+// =====================================================
+// HOME PAGE
+// =====================================================
+
+Route::get('/', function () {
+
+    // Breaking news for homepage
+    $breakingNews = News::with('category')
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->where('is_pinned', true)
+        ->orderBy('pin_order')
+        ->orderByDesc('published_at')
+        ->take(8)
+        ->get();
+
+    // Homepage slider
+    $sliderNews = News::with('category')
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->orderByDesc('published_at')
+        ->take(5)
+        ->get();
+
+    // Latest news on homepage
+    $latestNews = News::with('category')
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->orderByDesc('published_at')
+        ->orderByDesc('id')
+        ->paginate(12);
+
+    // Active categories and their latest news
+    $homeCategories = Category::with(['news' => function ($query) {
+        $query->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->take(4);
+    }])
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    return view('welcome', compact(
+        'breakingNews',
+        'sliderNews',
+        'latestNews',
+        'homeCategories'
+    ));
+
+})->name('home');
+
+
+// =====================================================
+// ADMIN DASHBOARD
+// =====================================================
+
 Route::get('/admin/dashboard', [
     DashboardController::class,
     'index'
 ])->name('admin.dashboard');
 
-// Admin Routes
+
+// =====================================================
+// ADMIN PANEL
+// =====================================================
+
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    // =========================
-    // Categories and Subcategories
-    // =========================
+    // ---------------- Categories ----------------
 
     Route::get('/categories', [
         CategoryController::class,
@@ -29,7 +94,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/categories/create', function () {
         $categories = Category::orderBy('name')->get();
 
-        return view('admin.categories-create', compact('categories'));
+        return view(
+            'admin.categories-create',
+            compact('categories')
+        );
     })->name('categories.create');
 
     Route::post('/categories', [
@@ -52,6 +120,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         'destroy'
     ])->name('categories.destroy');
 
+
+    // ---------------- Subcategories ----------------
+
     Route::post('/categories/{category}/subcategories', [
         CategoryController::class,
         'storeSubcategory'
@@ -68,9 +139,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     ])->name('subcategories.destroy');
 
 
-    // =========================
-    // News Management
-    // =========================
+    // ---------------- News CRUD ----------------
 
     Route::get('/news', [
         NewsController::class,
@@ -101,4 +170,134 @@ Route::prefix('admin')->name('admin.')->group(function () {
         NewsController::class,
         'destroy'
     ])->name('news.destroy');
+
 });
+
+
+// =====================================================
+// INDIVIDUAL NEWS DETAIL PAGE
+// =====================================================
+
+Route::get('/news/{news:slug}', function (News $news) {
+
+    abort_unless(
+        $news->status === 'published'
+        && $news->published_at
+        && $news->published_at->lte(now()),
+        404
+    );
+
+    $news->load(['category', 'subcategory']);
+
+    // Related news from the same category
+    $relatedNews = News::with('category')
+        ->where('category_id', $news->category_id)
+        ->where('id', '!=', $news->id)
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->orderByDesc('published_at')
+        ->orderByDesc('id')
+        ->take(4)
+        ->get();
+
+    return view('news-show', compact(
+        'news',
+        'relatedNews'
+    ));
+
+})->name('news.show');
+
+
+// =====================================================
+// CATEGORY NEWS PAGE
+// Example: /category/dehradun
+// =====================================================
+
+Route::get('/category/{category:slug}', function (Category $category) {
+
+    abort_unless($category->is_active, 404);
+
+    // Only news belonging to this category
+    $news = News::with(['category', 'subcategory'])
+        ->where('category_id', $category->id)
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->orderByDesc('is_pinned')
+        ->orderBy('pin_order')
+        ->orderByDesc('published_at')
+        ->orderByDesc('id')
+        ->paginate(10);
+
+    // Sidebar breaking news
+    $breakingNews = News::with('category')
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->where('is_pinned', true)
+        ->orderByDesc('published_at')
+        ->orderByDesc('id')
+        ->take(10)
+        ->get();
+
+    return view('category-news', [
+        'category' => $category,
+        'subcategory' => null,
+        'news' => $news,
+        'breakingNews' => $breakingNews,
+    ]);
+
+})->name('category.show');
+
+
+// =====================================================
+// SUBCATEGORY NEWS PAGE
+// Example: /category/dehradun/education
+// =====================================================
+
+Route::get('/category/{category:slug}/{subcategory:slug}', function (
+    Category $category,
+    Subcategory $subcategory
+) {
+
+    abort_unless($category->is_active, 404);
+
+    // Ensure subcategory belongs to the selected category
+    abort_unless(
+        (int) $subcategory->category_id === (int) $category->id,
+        404
+    );
+
+    // Only news belonging to this category and subcategory
+    $news = News::with(['category', 'subcategory'])
+        ->where('category_id', $category->id)
+        ->where('subcategory_id', $subcategory->id)
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->orderByDesc('is_pinned')
+        ->orderBy('pin_order')
+        ->orderByDesc('published_at')
+        ->orderByDesc('id')
+        ->paginate(10);
+
+    // Sidebar breaking news
+    $breakingNews = News::with('category')
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->where('is_pinned', true)
+        ->orderByDesc('published_at')
+        ->orderByDesc('id')
+        ->take(10)
+        ->get();
+
+    return view('category-news', [
+        'category' => $category,
+        'subcategory' => $subcategory,
+        'news' => $news,
+        'breakingNews' => $breakingNews,
+    ]);
+
+})->name('subcategory.show');
