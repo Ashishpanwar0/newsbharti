@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\AuthController;
 use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\News;
@@ -67,6 +68,20 @@ Route::get('/', function () {
 
 })->name('home');
 
+// Authentication routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])
+        ->name('login');
+
+    Route::post('/login', [AuthController::class, 'login'])
+        ->name('login.submit');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
+
 
 // =====================================================
 // ADMIN DASHBOARD
@@ -75,14 +90,16 @@ Route::get('/', function () {
 Route::get('/admin/dashboard', [
     DashboardController::class,
     'index'
-])->name('admin.dashboard');
+])->middleware('auth')->name('admin.dashboard');
 
 
 // =====================================================
 // ADMIN PANEL
 // =====================================================
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')
+    ->middleware('auth')
+    ->group(function () {
 
     // Categories
     Route::get('/categories', [
