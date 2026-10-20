@@ -1,154 +1,520 @@
-
 @extends('admin.sidebar')
 
 @section('title', 'Categories Management')
 
 @section('content')
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold">Categories Management</h2>
-        <p class="text-secondary mb-0">Manage categories and subcategories.</p>
+<style>
+    .categories-page {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .categories-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .categories-header h2 {
+        color: #15213b;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .categories-header p {
+        color: #737b8b;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .btn-brand {
+        display: inline-block;
+        background: #ed101b;
+        color: #fff;
+        border: 1px solid #ed101b;
+        border-radius: 5px;
+        padding: 8px 11px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-brand:hover {
+        background: #c80913;
+        color: #fff;
+    }
+
+    /* Main category grid */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        align-items: start;
+    }
+
+    .category-card {
+        min-width: 0;
+        background: #fff;
+        border: 1px solid #e5e8ef;
+        border-top: 3px solid #1239c5;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 7px rgba(21, 33, 59, .04);
+    }
+
+    .category-card-header {
+        padding: 12px;
+        border-bottom: 1px solid #e8eaf0;
+    }
+
+    .category-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .category-name {
+        color: #15213b;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        overflow-wrap: anywhere;
+    }
+
+    .category-slug {
+        color: #818899;
+        font-size: 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .category-description {
+        color: #626b7c;
+        font-size: 11px;
+        line-height: 1.5;
+        margin: 7px 0 0;
+        overflow-wrap: anywhere;
+    }
+
+    .category-actions,
+    .subcategory-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .category-actions form,
+    .subcategory-actions form {
+        margin: 0;
+    }
+
+    .btn-xs {
+        padding: 4px 6px;
+        font-size: 10px;
+        line-height: 1.3;
+        border-radius: 4px;
+    }
+
+    .category-card-body {
+        padding: 12px;
+    }
+
+    .subcategories-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 9px;
+    }
+
+    .subcategories-heading h6 {
+        color: #343c4e;
+        font-size: 11px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .subcategory-count {
+        background: #edf1ff;
+        color: #1239c5;
+        border-radius: 20px;
+        padding: 3px 7px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    /* Subcategory grid */
+    .subcategory-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .subcategory-item {
+        min-width: 0;
+        padding: 8px;
+        background: #f7f8fc;
+        border: 1px solid #e9ebf2;
+        border-radius: 5px;
+    }
+
+    .subcategory-item-name {
+        color: #3c4557;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+        margin-bottom: 7px;
+    }
+
+    .empty-subcategories {
+        grid-column: 1 / -1;
+        padding: 10px 5px;
+        text-align: center;
+        color: #858c9a;
+        background: #f7f8fc;
+        border-radius: 5px;
+        font-size: 11px;
+    }
+
+    .subcategory-edit-form {
+        grid-column: 1 / -1;
+        padding: 10px;
+        background: #f5f7ff;
+        border: 1px solid #dfe5ff;
+        border-radius: 6px;
+    }
+
+    .subcategory-edit-form label,
+    .add-subcategory label {
+        display: block;
+        color: #525b6d;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .subcategory-edit-form .form-control,
+    .add-subcategory .form-control {
+        min-width: 0;
+        font-size: 11px;
+    }
+
+    .subcategory-edit-form .btn,
+    .add-subcategory .btn {
+        font-size: 10px;
+    }
+
+    .add-subcategory {
+        border-top: 1px solid #e8ebf1;
+        margin-top: 12px;
+        padding-top: 11px;
+    }
+
+    .empty-categories {
+        padding: 30px 15px;
+        background: #fff;
+        border: 1px solid #e5e8ef;
+        border-radius: 8px;
+        text-align: center;
+        color: #737b8b;
+    }
+
+    /* Tablet: 2 cards */
+    @media (max-width: 1050px) {
+        .category-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+    }
+
+    /* Mobile: keep 2 compact cards per row */
+    @media (max-width: 600px) {
+        .categories-header h2 {
+            font-size: 20px;
+        }
+
+        .category-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .category-card-header,
+        .category-card-body {
+            padding: 9px;
+        }
+
+        .category-name {
+            font-size: 13px;
+        }
+
+        .category-actions {
+            gap: 4px;
+        }
+
+        .subcategory-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-xs {
+            padding: 4px 5px;
+            font-size: 9px;
+        }
+
+        .add-subcategory .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .add-subcategory .input-group .form-control {
+            width: 100%;
+            border-radius: 4px !important;
+        }
+
+        .add-subcategory .input-group .btn {
+            border-radius: 4px !important;
+        }
+    }
+
+    /* Very narrow phones */
+    @media (max-width: 350px) {
+        .category-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .subcategory-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+</style>
+
+<div class="categories-page">
+
+    {{-- Heading --}}
+    <div class="categories-header">
+        <div>
+            <h2>Categories Management</h2>
+            <p>Manage your news categories and subcategories.</p>
+        </div>
+
+        <a href="{{ route('admin.categories.create') }}"
+           class="btn-brand">
+            + Add Category
+        </a>
     </div>
 
-    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
-        + Add Category / Subcategory
-    </a>
-</div>
+    {{-- Success message --}}
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-@if (session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
+    {{-- Validation errors --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        @foreach ($errors->all() as $error)
-            <div>{{ $error }}</div>
-        @endforeach
-    </div>
-@endif
+    @if ($categories->isEmpty())
 
-@forelse ($categories as $category)
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
+        <div class="empty-categories">
+            <h5>No categories found</h5>
+            <p>Create your first category to organise news.</p>
 
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h5 class="fw-bold mb-1">{{ $category->name }}</h5>
-                    <small class="text-secondary">{{ $category->slug }}</small>
+            <a href="{{ route('admin.categories.create') }}"
+               class="btn-brand">
+                + Add Category
+            </a>
+        </div>
 
-                    @if ($category->description)
-                        <p class="mt-2 mb-0">{{ $category->description }}</p>
-                    @endif
-                </div>
+    @else
 
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.categories.edit', $category) }}"
-                       class="btn btn-sm btn-outline-primary">
-                        Edit
-                    </a>
+        {{-- IMPORTANT: one shared grid for every category --}}
+        <div class="category-grid">
 
-                    <form action="{{ route('admin.categories.destroy', $category) }}"
-                          method="POST"
-                          onsubmit="return confirm('Delete this category?')">
-                        @csrf
-                        @method('DELETE')
+            @foreach ($categories as $category)
 
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                            Delete
-                        </button>
-                    </form>
-                </div>
-            </div>
+                <div class="category-card">
 
-            <hr>
+                    {{-- Category details --}}
+                    <div class="category-card-header">
 
-            <h6 class="fw-bold">Subcategories</h6>
+                        <div class="category-top">
+                            <div style="min-width: 0;">
+                                <h3 class="category-name">
+                                    {{ $category->name }}
+                                </h3>
 
-            @forelse ($category->subcategories as $subcategory)
-                <div class="border rounded p-3 mb-2">
+                                <div class="category-slug">
+                                    /{{ $category->slug }}
+                                </div>
+                            </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>{{ $subcategory->name }}</span>
+                            <div class="category-actions">
 
-                        <div class="d-flex gap-2">
-                            <a href="{{ route('admin.categories.index', ['edit_subcategory' => $subcategory->id]) }}"
-                               class="btn btn-sm btn-outline-primary">
-                                Edit
-                            </a>
+                                <a href="{{ route('admin.categories.edit', $category) }}"
+                                   class="btn btn-outline-primary btn-xs">
+                                    Edit
+                                </a>
 
-                            <form action="{{ route('admin.subcategories.destroy', $subcategory) }}"
-                                  method="POST"
-                                  onsubmit="return confirm('Delete this subcategory?')">
-                                @csrf
-                                @method('DELETE')
+                                <form action="{{ route('admin.categories.destroy', $category) }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Delete this category?')">
+                                    @csrf
+                                    @method('DELETE')
 
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    Delete
-                                </button>
-                            </form>
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-xs">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
                         </div>
+
+                        @if ($category->description)
+                            <p class="category-description">
+                                {{ $category->description }}
+                            </p>
+                        @endif
+
                     </div>
 
-                    @if ($editSubcategory && $editSubcategory->id == $subcategory->id)
-                        <form action="{{ route('admin.subcategories.update', $subcategory) }}"
-                              method="POST" class="mt-3">
+                    {{-- Subcategories --}}
+                    <div class="category-card-body">
+
+                        <div class="subcategories-heading">
+                            <h6>Subcategories</h6>
+
+                            <span class="subcategory-count">
+                                {{ $category->subcategories->count() }}
+                            </span>
+                        </div>
+
+                        <div class="subcategory-grid">
+
+                            @forelse ($category->subcategories as $subcategory)
+
+                                <div class="subcategory-item">
+
+                                    <div class="subcategory-item-name">
+                                        {{ $subcategory->name }}
+                                    </div>
+
+                                    <div class="subcategory-actions">
+
+                                        <a href="{{ route('admin.categories.index', ['edit_subcategory' => $subcategory->id]) }}"
+                                           class="btn btn-outline-primary btn-xs">
+                                            Edit
+                                        </a>
+
+                                        <form action="{{ route('admin.subcategories.destroy', $subcategory) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Delete this subcategory?')">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger btn-xs">
+                                                Delete
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </div>
+
+                                {{-- Inline edit --}}
+                                @if ($editSubcategory && $editSubcategory->id == $subcategory->id)
+
+                                    <div class="subcategory-edit-form">
+
+                                        <form action="{{ route('admin.subcategories.update', $subcategory) }}"
+                                              method="POST">
+                                            @csrf
+                                            @method('PUT')
+
+                                            <label>Edit Subcategory Name</label>
+
+                                            <div class="input-group input-group-sm">
+                                                <input type="text"
+                                                       name="name"
+                                                       class="form-control"
+                                                       value="{{ old('name', $subcategory->name) }}"
+                                                       required>
+
+                                                <button type="submit"
+                                                        class="btn btn-primary">
+                                                    Update
+                                                </button>
+
+                                                <a href="{{ route('admin.categories.index') }}"
+                                                   class="btn btn-secondary">
+                                                    Cancel
+                                                </a>
+                                            </div>
+                                        </form>
+
+                                    </div>
+
+                                @endif
+
+                            @empty
+
+                                <div class="empty-subcategories">
+                                    No subcategories yet.
+                                </div>
+
+                            @endforelse
+
+                        </div>
+
+                        {{-- Add subcategory --}}
+                        <form action="{{ route('admin.categories.subcategories.store', $category) }}"
+                              method="POST"
+                              class="add-subcategory">
                             @csrf
-                            @method('PUT')
 
-                            <label class="form-label">Edit Subcategory Name</label>
+                            <label>
+                                Add to {{ $category->name }}
+                            </label>
 
-                            <div class="input-group">
+                            <div class="input-group input-group-sm">
                                 <input type="text"
                                        name="name"
                                        class="form-control"
-                                       value="{{ old('name', $subcategory->name) }}"
+                                       placeholder="Subcategory name"
                                        required>
 
-                                <button type="submit" class="btn btn-primary">
-                                    Update
+                                <button type="submit"
+                                        class="btn btn-primary">
+                                    + Add
                                 </button>
-
-                                <a href="{{ route('admin.categories.index') }}"
-                                   class="btn btn-secondary">
-                                    Cancel
-                                </a>
                             </div>
                         </form>
-                    @endif
+
+                    </div>
 
                 </div>
-            @empty
-                <p class="text-secondary">No subcategories added yet.</p>
-            @endforelse
 
-            <form action="{{ route('admin.categories.subcategories.store', $category) }}"
-                  method="POST" class="mt-3">
-                @csrf
-
-                <label class="form-label">
-                    Add Subcategory to {{ $category->name }}
-                </label>
-
-                <div class="input-group">
-                    <input type="text"
-                           name="name"
-                           class="form-control"
-                           placeholder="Enter subcategory name"
-                           required>
-
-                    <button type="submit" class="btn btn-success">
-                        Add Subcategory
-                    </button>
-                </div>
-            </form>
+            @endforeach
 
         </div>
-    </div>
-@empty
-    <div class="alert alert-info">
-        No categories found. Click “Add Category / Subcategory” to create one.
-    </div>
-@endforelse
+
+    @endif
+
+</div>
 
 @endsection

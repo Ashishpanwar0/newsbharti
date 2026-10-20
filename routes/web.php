@@ -16,11 +16,14 @@ use App\Models\News;
 
 Route::get('/', function () {
 
-    // Breaking news for homepage
-    $breakingNews = News::with('category')
+    $publishedNews = News::query()
         ->where('status', 'published')
         ->whereNotNull('published_at')
-        ->where('published_at', '<=', now())
+        ->where('published_at', '<=', now());
+
+    // Homepage breaking news
+    $breakingNews = (clone $publishedNews)
+        ->with('category')
         ->where('is_pinned', true)
         ->orderBy('pin_order')
         ->orderByDesc('published_at')
@@ -28,24 +31,21 @@ Route::get('/', function () {
         ->get();
 
     // Homepage slider
-    $sliderNews = News::with('category')
-        ->where('status', 'published')
-        ->whereNotNull('published_at')
-        ->where('published_at', '<=', now())
+    $sliderNews = (clone $publishedNews)
+        ->with('category')
         ->orderByDesc('published_at')
+        ->orderByDesc('id')
         ->take(5)
         ->get();
 
-    // Latest news on homepage
-    $latestNews = News::with('category')
-        ->where('status', 'published')
-        ->whereNotNull('published_at')
-        ->where('published_at', '<=', now())
+    // Latest news
+    $latestNews = (clone $publishedNews)
+        ->with('category')
         ->orderByDesc('published_at')
         ->orderByDesc('id')
         ->paginate(12);
 
-    // Active categories and their latest news
+    // Active categories and latest news in each category
     $homeCategories = Category::with(['news' => function ($query) {
         $query->where('status', 'published')
             ->whereNotNull('published_at')
@@ -84,8 +84,7 @@ Route::get('/admin/dashboard', [
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    // ---------------- Categories ----------------
-
+    // Categories
     Route::get('/categories', [
         CategoryController::class,
         'index'
@@ -121,8 +120,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     ])->name('categories.destroy');
 
 
-    // ---------------- Subcategories ----------------
-
+    // Subcategories
     Route::post('/categories/{category}/subcategories', [
         CategoryController::class,
         'storeSubcategory'
@@ -139,8 +137,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     ])->name('subcategories.destroy');
 
 
-    // ---------------- News CRUD ----------------
-
+    // News CRUD
     Route::get('/news', [
         NewsController::class,
         'index'
@@ -189,21 +186,33 @@ Route::get('/news/{news:slug}', function (News $news) {
 
     $news->load(['category', 'subcategory']);
 
-    // Related news from the same category
-    $relatedNews = News::with('category')
-        ->where('category_id', $news->category_id)
-        ->where('id', '!=', $news->id)
+    // Latest 12 published news, excluding current article
+    $latestNews = News::with('category')
         ->where('status', 'published')
         ->whereNotNull('published_at')
         ->where('published_at', '<=', now())
+        ->where('id', '!=', $news->id)
         ->orderByDesc('published_at')
         ->orderByDesc('id')
-        ->take(4)
+        ->take(12)
+        ->get();
+
+    // Breaking news sidebar
+    $breakingNews = News::with('category')
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->where('is_pinned', true)
+        ->where('id', '!=', $news->id)
+        ->orderByDesc('published_at')
+        ->orderByDesc('id')
+        ->take(10)
         ->get();
 
     return view('news-show', compact(
         'news',
-        'relatedNews'
+        'latestNews',
+        'breakingNews'
     ));
 
 })->name('news.show');
@@ -218,7 +227,6 @@ Route::get('/category/{category:slug}', function (Category $category) {
 
     abort_unless($category->is_active, 404);
 
-    // Only news belonging to this category
     $news = News::with(['category', 'subcategory'])
         ->where('category_id', $category->id)
         ->where('status', 'published')
@@ -230,7 +238,6 @@ Route::get('/category/{category:slug}', function (Category $category) {
         ->orderByDesc('id')
         ->paginate(10);
 
-    // Sidebar breaking news
     $breakingNews = News::with('category')
         ->where('status', 'published')
         ->whereNotNull('published_at')
@@ -263,13 +270,11 @@ Route::get('/category/{category:slug}/{subcategory:slug}', function (
 
     abort_unless($category->is_active, 404);
 
-    // Ensure subcategory belongs to the selected category
     abort_unless(
         (int) $subcategory->category_id === (int) $category->id,
         404
     );
 
-    // Only news belonging to this category and subcategory
     $news = News::with(['category', 'subcategory'])
         ->where('category_id', $category->id)
         ->where('subcategory_id', $subcategory->id)
@@ -282,7 +287,6 @@ Route::get('/category/{category:slug}/{subcategory:slug}', function (
         ->orderByDesc('id')
         ->paginate(10);
 
-    // Sidebar breaking news
     $breakingNews = News::with('category')
         ->where('status', 'published')
         ->whereNotNull('published_at')
@@ -301,3 +305,60 @@ Route::get('/category/{category:slug}/{subcategory:slug}', function (
     ]);
 
 })->name('subcategory.show');
+
+
+// =====================================================
+// SEO: ROBOTS.TXT
+// =====================================================
+
+Route::get('/robots.txt', function () {
+
+    $siteUrl = rtrim(config('app.url'), '/');
+
+    $content = "User-agent: *\n"
+        . "Allow: /\n"
+        . "Disallow: /admin\n"
+        . "Disallow: /admin/\n"
+        . "Sitemap: {$siteUrl}/sitemap.xml\n";
+
+    return response($content, 200)
+        ->header('Content-Type', 'text/plain; charset=UTF-8');
+
+});
+
+
+// =====================================================
+// SEO: XML SITEMAP
+// =====================================================
+
+Route::get('/sitemap.xml', function () {
+
+    $news = News::query()
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->where('published_at', '<=', now())
+        ->orderByDesc('published_at')
+        ->get(['slug', 'updated_at', 'published_at']);
+
+    $categories = Category::query()
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get(['slug', 'updated_at']);
+
+    $subcategories = Subcategory::with('category')
+        ->where('is_active', true)
+        ->whereHas('category', function ($query) {
+            $query->where('is_active', true);
+        })
+        ->orderBy('name')
+        ->get();
+
+    return response()
+        ->view('sitemap', compact(
+            'news',
+            'categories',
+            'subcategories'
+        ))
+        ->header('Content-Type', 'application/xml; charset=UTF-8');
+
+});

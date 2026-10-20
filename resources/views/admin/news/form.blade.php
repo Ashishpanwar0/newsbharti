@@ -1,21 +1,221 @@
-
 @extends('admin.sidebar')
 
+@section('title', ($item->exists ? 'Edit News' : 'Add New News') . ' | Samachar Bharti')
+
 @section('content')
+
+<style>
+    .news-form-page {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .news-form-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 24px;
+    }
+
+    .news-form-heading h1 {
+        color: #15213b;
+        font-size: 27px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .news-form-heading p {
+        color: #737b8b;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .news-back-btn {
+        color: #1239c5;
+        border: 1px solid #1239c5;
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        background: #fff;
+    }
+
+    .news-back-btn:hover {
+        color: #fff;
+        background: #1239c5;
+    }
+
+    .news-form-card {
+        background: #fff;
+        border: 1px solid #e5e8ef;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .news-form-card-header {
+        padding: 16px 21px;
+        border-bottom: 1px solid #e5e8ef;
+        background: #f5f6fa;
+        font-size: 15px;
+        font-weight: 700;
+        color: #15213b;
+    }
+
+    .news-form-card-body {
+        padding: 21px;
+    }
+
+    .news-form-label {
+        color: #4b5363;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .news-form-page .form-control,
+    .news-form-page .form-select {
+        border: 1px solid #e5e8ef;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #252b38;
+        padding: 10px 12px;
+    }
+
+    .news-form-page .form-control:focus,
+    .news-form-page .form-select:focus {
+        border-color: #1239c5;
+        box-shadow: 0 0 0 0.2rem rgba(18, 57, 197, 0.15);
+    }
+
+    .news-form-page .form-control::placeholder {
+        color: #a0a7b5;
+    }
+
+    .news-form-hint {
+        color: #737b8b;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .news-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .news-submit-btn {
+        background: #ed101b;
+        color: #fff;
+        border: 1px solid #ed101b;
+        border-radius: 6px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .news-submit-btn:hover {
+        background: #c80913;
+        border-color: #c80913;
+        color: #fff;
+    }
+
+    .news-cancel-btn {
+        background: #fff;
+        color: #656e80;
+        border: 1px solid #e5e8ef;
+        border-radius: 6px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .news-cancel-btn:hover {
+        background: #f5f6fa;
+        color: #15213b;
+        border-color: #d0d5e0;
+    }
+
+    .news-alert {
+        border-radius: 8px;
+        border: 1px solid #f5c2c7;
+        background: #f8d7da;
+        color: #842029;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        font-size: 13px;
+    }
+
+    .news-form-page .form-check-input:checked {
+        background-color: #1239c5;
+        border-color: #1239c5;
+    }
+
+    .news-form-page .form-check-label {
+        color: #4b5363;
+        font-size: 13px;
+    }
+
+    #editor {
+        min-height: 300px;
+        background: #fff;
+        border: 1px solid #e5e8ef;
+        border-radius: 0 0 6px 6px;
+    }
+
+    .ql-toolbar.ql-snow {
+        border: 1px solid #e5e8ef;
+        border-radius: 6px 6px 0 0;
+        background: #f5f6fa;
+    }
+
+    .ql-container.ql-snow {
+        border: 1px solid #e5e8ef;
+        border-top: 0;
+        border-radius: 0 0 6px 6px;
+    }
+
+    @media (max-width: 767px) {
+        .news-form-heading h1 {
+            font-size: 23px;
+        }
+
+        .news-form-card-body {
+            padding: 16px;
+        }
+
+        .news-form-card-header {
+            padding: 14px 16px;
+        }
+    }
+</style>
+
 @php
     $editing = $item->exists;
 @endphp
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>{{ $editing ? 'Edit News' : 'Add New News' }}</h3>
-        <a href="{{ route('admin.news.index') }}" class="btn btn-secondary">
+<div class="news-form-page">
+
+    {{-- Heading --}}
+    <div class="news-form-heading">
+        <div>
+            <h1>{{ $editing ? 'Edit News' : 'Add New News' }}</h1>
+            <p>{{ $editing ? 'Update existing news article.' : 'Create and publish a new news article.' }}</p>
+        </div>
+
+        <a href="{{ route('admin.news.index') }}" class="news-back-btn">
             All News
         </a>
     </div>
 
     @if ($errors->any())
-        <div class="alert alert-danger">
+        <div class="news-alert">
             <strong>Please correct the following errors:</strong>
             <ul class="mb-0 mt-2">
                 @foreach ($errors->all() as $error)
@@ -37,13 +237,13 @@
         @endif
 
         {{-- Basic Details --}}
-        <div class="card mb-4">
-            <div class="card-header fw-bold">Basic News Details</div>
-            <div class="card-body">
+        <div class="news-form-card">
+            <div class="news-form-card-header">Basic News Details</div>
+            <div class="news-form-card-body">
                 <div class="row g-3">
 
                     <div class="col-md-8">
-                        <label class="form-label">News Heading (H1) *</label>
+                        <label class="news-form-label">News Heading (H1) *</label>
                         <input
                             type="text"
                             name="title"
@@ -56,7 +256,7 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label">Author Name</label>
+                        <label class="news-form-label">Author Name</label>
                         <input
                             type="text"
                             name="author_name"
@@ -68,7 +268,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">URL Slug</label>
+                        <label class="news-form-label">URL slug</label>
                         <input
                             type="text"
                             name="slug"
@@ -78,13 +278,11 @@
                             value="{{ old('slug', $item->slug) }}"
                             placeholder="news-heading"
                         >
-                        <small class="text-muted">
-                            Example: latest-news-update
-                        </small>
+                        <span class="news-form-hint">Example: latest-news-update</span>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Category *</label>
+                        <label class="news-form-label">Category *</label>
                         <select
                             name="category_id"
                             id="categorySelect"
@@ -104,7 +302,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Subcategory</label>
+                        <label class="news-form-label">Subcategory</label>
                         <select
                             name="subcategory_id"
                             id="subcategorySelect"
@@ -115,7 +313,7 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label">Short Description</label>
+                        <label class="news-form-label">Short Description</label>
                         <textarea
                             name="excerpt"
                             class="form-control"
@@ -125,16 +323,16 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label">Full News Content *</label>
-                        <div id="editor" style="min-height:300px;background:#fff"></div>
+                        <label class="news-form-label">Full News Content *</label>
+                        <div id="editor"></div>
                         <textarea
                             name="content"
                             id="contentField"
                             hidden
                         >{{ old('content', $item->content) }}</textarea>
-                        <small class="text-muted">
+                        <span class="news-form-hint">
                             Use headings, bold, italic, lists, blockquotes and links in the editor.
-                        </small>
+                        </span>
                     </div>
 
                 </div>
@@ -142,34 +340,34 @@
         </div>
 
         {{-- Image and Videos --}}
-        <div class="card mb-4">
-            <div class="card-header fw-bold">Image and Video</div>
-            <div class="card-body">
+        <div class="news-form-card">
+            <div class="news-form-card-header">Image and Video</div>
+            <div class="news-form-card-body">
                 <div class="row g-3">
 
                     <div class="col-md-6">
-                        <label class="form-label">Featured Image</label>
+                        <label class="news-form-label">Featured Image</label>
                         <input
                             type="file"
                             name="featured_image"
                             class="form-control"
                             accept=".jpg,.jpeg,.png,.webp"
                         >
-                        <small class="text-muted">JPG, PNG or WebP; maximum 5 MB.</small>
+                        <span class="news-form-hint">JPG, PNG or WebP; maximum 5 MB.</span>
 
                         @if ($editing && $item->featured_image)
                             <div class="mt-3">
                                 <img
                                     src="{{ asset('storage/' . $item->featured_image) }}"
                                     alt="{{ $item->image_alt ?: $item->title }}"
-                                    style="max-width:200px;max-height:140px;object-fit:cover"
+                                    style="max-width:200px;max-height:140px;object-fit:cover;border-radius:6px;border:1px solid #e5e8ef;"
                                 >
                             </div>
                         @endif
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Image Alt Text</label>
+                        <label class="news-form-label">Image Alt Text</label>
                         <input
                             type="text"
                             name="image_alt"
@@ -180,7 +378,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">YouTube Video URL</label>
+                        <label class="news-form-label">YouTube Video URL</label>
                         <input
                             type="url"
                             name="youtube_url"
@@ -191,7 +389,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Facebook Video / Post URL</label>
+                        <label class="news-form-label">Facebook Video / Post URL</label>
                         <input
                             type="url"
                             name="facebook_url"
@@ -206,13 +404,13 @@
         </div>
 
         {{-- SEO --}}
-        <div class="card mb-4">
-            <div class="card-header fw-bold">SEO Details</div>
-            <div class="card-body">
+        <div class="news-form-card">
+            <div class="news-form-card-header">SEO Details</div>
+            <div class="news-form-card-body">
                 <div class="row g-3">
 
                     <div class="col-md-6">
-                        <label class="form-label">Meta Title</label>
+                        <label class="news-form-label">Meta Title</label>
                         <input
                             type="text"
                             name="meta_title"
@@ -223,7 +421,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Focus Keyword</label>
+                        <label class="news-form-label">Focus Keyword</label>
                         <input
                             type="text"
                             name="focus_keyword"
@@ -233,7 +431,7 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label">Meta Description</label>
+                        <label class="news-form-label">Meta Description</label>
                         <textarea
                             name="meta_description"
                             class="form-control"
@@ -247,13 +445,13 @@
         </div>
 
         {{-- Publishing --}}
-        <div class="card mb-4">
-            <div class="card-header fw-bold">Publishing and Breaking News</div>
-            <div class="card-body">
+        <div class="news-form-card">
+            <div class="news-form-card-header">Publishing and Breaking News</div>
+            <div class="news-form-card-body">
                 <div class="row g-3">
 
                     <div class="col-md-6">
-                        <label class="form-label">Status *</label>
+                        <label class="news-form-label">Status *</label>
                         <select name="status" class="form-select" required>
                             <option
                                 value="draft"
@@ -268,13 +466,13 @@
                                 Published
                             </option>
                         </select>
-                        <small class="text-muted">
+                        <span class="news-form-hint">
                             Published news gets the current date and time automatically.
-                        </small>
+                        </span>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Pin Order</label>
+                        <label class="news-form-label">Pin Order</label>
                         <input
                             type="number"
                             name="pin_order"
@@ -282,9 +480,9 @@
                             min="0"
                             value="{{ old('pin_order', $item->pin_order ?? 0) }}"
                         >
-                        <small class="text-muted">
+                        <span class="news-form-hint">
                             Lower numbers appear first among pinned news.
-                        </small>
+                        </span>
                     </div>
 
                     <div class="col-12">
@@ -307,14 +505,17 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg">
-            {{ $editing ? 'Update News' : 'Save News' }}
-        </button>
+        <div class="news-form-actions">
+            <button type="submit" class="news-submit-btn">
+                {{ $editing ? 'Update News' : 'Save News' }}
+            </button>
 
-        <a href="{{ route('admin.news.index') }}" class="btn btn-secondary btn-lg">
-            Cancel
-        </a>
+            <a href="{{ route('admin.news.index') }}" class="news-cancel-btn">
+                Cancel
+            </a>
+        </div>
     </form>
+
 </div>
 
 <link

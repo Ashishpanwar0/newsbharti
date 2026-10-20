@@ -4,25 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    {{-- SEO variables: meta tags se pehle define hone chahiye --}}
     @php
-        $pageName = $subcategory
+        $pageName = isset($subcategory) && $subcategory
             ? $subcategory->name
             : $category->name;
 
         $pageTitle = $pageName . ' News | Samachar Bharti';
-        $pageDescription = $pageName
-            . ' ki latest news, breaking news aur taaza khabrein padhein Samachar Bharti par.';
+
+        $pageDescription = \Illuminate\Support\Str::limit(
+            $pageName . ' ki latest news, breaking news aur taaza khabrein padhein Samachar Bharti par.',
+            160,
+            ''
+        );
+
+        $canonicalUrl = isset($subcategory) && $subcategory
+            ? route('subcategory.show', [
+                'category' => $category->slug,
+                'subcategory' => $subcategory->slug,
+            ])
+            : route('category.show', [
+                'category' => $category->slug,
+            ]);
+
+        $categoryImage = asset('images/samachar-bharti-logo.webp');
     @endphp
 
     <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ $pageDescription }}">
     <meta name="robots" content="index,follow">
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
 
+    {{-- Open Graph --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Samachar Bharti">
     <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:description" content="{{ $pageDescription }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    <meta property="og:image" content="{{ $categoryImage }}">
+
+    {{-- Twitter --}}
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
+    <meta name="twitter:image" content="{{ $categoryImage }}">
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -35,21 +60,21 @@
             --news-text: #171717;
             --news-muted: #777;
             --news-border: #e7e7e7;
+            --news-bg: #f5f6f8;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            background: #f5f6f8;
+            margin: 0;
+            background: var(--news-bg);
             color: var(--news-text);
             font-family: Arial, "Noto Sans Devanagari", sans-serif;
         }
 
-        a {
-            text-decoration: none;
-        }
+        a { text-decoration: none; }
 
-        .page-layout {
-            max-width: 1200px;
-        }
+        .page-layout { max-width: 1200px; }
 
         .news-panel,
         .breaking-panel {
@@ -59,9 +84,7 @@
             box-shadow: 0 5px 18px rgba(0, 0, 0, .045);
         }
 
-        .news-panel {
-            padding: 24px 30px;
-        }
+        .news-panel { padding: 24px 30px; }
 
         .section-heading {
             font-size: 25px;
@@ -69,6 +92,7 @@
             border-left: 5px solid var(--news-red);
             padding-left: 13px;
             margin-bottom: 7px;
+            color: var(--news-text);
         }
 
         .section-description {
@@ -85,13 +109,8 @@
             border-bottom: 1px solid #eee;
         }
 
-        .news-item:first-child {
-            padding-top: 5px;
-        }
-
-        .news-item:last-child {
-            border-bottom: 0;
-        }
+        .news-item:first-child { padding-top: 5px; }
+        .news-item:last-child { border-bottom: 0; }
 
         .news-image-link {
             display: block;
@@ -114,6 +133,7 @@
         }
 
         .news-image-placeholder {
+            width: 100%;
             height: 100%;
             min-height: 180px;
             display: flex;
@@ -121,6 +141,7 @@
             justify-content: center;
             background: #f0f0f0;
             color: #777;
+            font-size: 14px;
         }
 
         .news-category {
@@ -135,15 +156,11 @@
             font-weight: 800;
             line-height: 1.4;
             margin-bottom: 10px;
+            overflow-wrap: anywhere;
         }
 
-        .news-title a {
-            color: var(--news-text);
-        }
-
-        .news-title a:hover {
-            color: var(--news-red);
-        }
+        .news-title a { color: var(--news-text); }
+        .news-title a:hover { color: var(--news-red); }
 
         .news-excerpt {
             font-size: 15px;
@@ -166,9 +183,10 @@
             font-size: 10px;
             font-weight: 800;
             margin-bottom: 8px;
+            letter-spacing: 0.3px;
         }
 
-        /* Right-side breaking news */
+        /* Breaking News sidebar */
         .breaking-panel {
             padding: 22px 22px 25px;
             position: sticky;
@@ -181,6 +199,7 @@
             border-bottom: 2px solid var(--news-red);
             padding-bottom: 14px;
             margin-bottom: 17px;
+            color: var(--news-text);
         }
 
         .breaking-list {
@@ -203,9 +222,7 @@
             padding: 0 0 20px 4px;
         }
 
-        .breaking-item:last-child {
-            padding-bottom: 0;
-        }
+        .breaking-item:last-child { padding-bottom: 0; }
 
         .breaking-item::before {
             content: "";
@@ -231,15 +248,11 @@
             font-weight: 800;
             line-height: 1.45;
             margin: 0;
+            overflow-wrap: anywhere;
         }
 
-        .breaking-title a {
-            color: #171717;
-        }
-
-        .breaking-title a:hover {
-            color: var(--news-red);
-        }
+        .breaking-title a { color: #171717; }
+        .breaking-title a:hover { color: var(--news-red); }
 
         .empty-state {
             text-align: center;
@@ -247,7 +260,7 @@
             color: #666;
         }
 
-        /* Numbered pagination */
+        /* Pagination */
         .pagination {
             gap: 7px;
             flex-wrap: wrap;
@@ -281,24 +294,15 @@
             background: #fff;
         }
 
+        /* Tablet */
         @media (max-width: 991.98px) {
-            .news-panel {
-                padding: 22px;
-            }
-
-            .breaking-panel {
-                position: static;
-            }
-
-            .news-title {
-                font-size: 19px;
-            }
-
-            .news-item {
-                gap: 17px;
-            }
+            .news-panel { padding: 22px; }
+            .breaking-panel { position: static; }
+            .news-title { font-size: 19px; }
+            .news-item { gap: 17px; }
         }
 
+        /* Mobile */
         @media (max-width: 767.98px) {
             .page-layout {
                 padding-left: 12px;
@@ -310,23 +314,16 @@
                 border-radius: 12px;
             }
 
-            .section-heading {
-                font-size: 22px;
-            }
-
-            .section-description {
-                margin-bottom: 17px;
-            }
+            .section-heading { font-size: 22px; }
+            .section-description { margin-bottom: 17px; }
 
             .news-item {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr);
                 gap: 12px;
                 padding: 17px 0;
             }
 
-            .news-image-link {
-                aspect-ratio: 1.65 / 1;
-            }
+            .news-image-link { aspect-ratio: 1.65 / 1; }
 
             .news-title {
                 font-size: 19px;
@@ -339,14 +336,9 @@
                 line-height: 1.6;
             }
 
-            /* Breaking News sidebar mobile par hidden */
-            .breaking-sidebar {
-                display: none !important;
-            }
+            .breaking-sidebar { display: none !important; }
 
-            .pagination {
-                gap: 5px;
-            }
+            .pagination { gap: 5px; }
 
             .pagination .page-link {
                 min-width: 35px;
@@ -356,6 +348,36 @@
             }
         }
     </style>
+
+    {{-- Breadcrumb structured data --}}
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => array_values(array_filter([
+            [
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Home',
+                'item' => url('/'),
+            ],
+            [
+                '@type' => 'ListItem',
+                'position' => 2,
+                'name' => $category->name,
+                'item' => route('category.show', [
+                    'category' => $category->slug,
+                ]),
+            ],
+            isset($subcategory) && $subcategory ? [
+                '@type' => 'ListItem',
+                'position' => 3,
+                'name' => $subcategory->name,
+                'item' => $canonicalUrl,
+            ] : null,
+        ])),
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}
+    </script>
 </head>
 
 <body id="top">
@@ -365,7 +387,7 @@
 <main class="container page-layout py-4">
     <div class="row g-4">
 
-        {{-- Main category news --}}
+        {{-- Main category/subcategory news --}}
         <div class="col-12 col-lg-8">
             <section class="news-panel">
 
