@@ -14,6 +14,11 @@ use App\Models\News;
 // HOME PAGE
 // =====================================================
 
+// Pages //
+Route::view('/about-us', 'pages.about-us')->name('about');
+Route::view('/contact-us', 'pages.contact-us')->name('contact');
+Route::view('/privacy-policy', 'pages.privacy-policy')->name('privacy');
+
 Route::get('/', function () {
 
     $publishedNews = News::query()
