@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Auth\AdminLoginController;
 use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\News;
@@ -73,6 +74,34 @@ Route::get('/', function () {
 })->name('home');
 
 
+Route::get('/admin', function () {
+    if (auth()->check()) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('admin.login');
+})->name('admin.entry');
+
+// =====================================================
+// ADMIN AUTHENTICATION
+// =====================================================
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [AdminLoginController::class, 'create'])
+            ->name('login');
+
+        Route::post('/login', [AdminLoginController::class, 'store'])
+            ->middleware('throttle:5,1')
+            ->name('login.store');
+    });
+
+    Route::post('/logout', [AdminLoginController::class, 'destroy'])
+        ->middleware('auth')
+        ->name('logout');
+});
+
+
 // =====================================================
 // ADMIN DASHBOARD
 // =====================================================
@@ -80,14 +109,14 @@ Route::get('/', function () {
 Route::get('/admin/dashboard', [
     DashboardController::class,
     'index'
-])->name('admin.dashboard');
+])->middleware('auth')->name('admin.dashboard');
 
 
 // =====================================================
 // ADMIN PANEL
 // =====================================================
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
     // Categories
     Route::get('/categories', [

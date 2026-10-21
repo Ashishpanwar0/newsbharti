@@ -3,29 +3,30 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>समाचार भारती न्यूज़ | ताज़ा खबरें और ब्रेकिंग न्यूज़</title>
-    <meta name="description" content="समाचार भारती न्यूज़ पर पढ़ें देश, उत्तराखंड, राजनीति, शिक्षा, खेल और अन्य विषयों की ताज़ा खबरें और पूरी रिपोर्ट।">
+    <title>Samachar Bharti | ताज़ा खबरें और ब्रेकिंग न्यूज़</title>
+    <meta name="description" content="Samachar Bharti पर पढ़ें देश, उत्तराखंड, राजनीति, शिक्षा, खेल और अन्य विषयों की ताज़ा खबरें और पूरी रिपोर्ट।">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <link rel="canonical" href="{{ url('/') }}">
 
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="समाचार भारती न्यूज़">
-    <meta property="og:title" content="समाचार भारती न्यूज़ | ताज़ा खबरें">
+    <meta property="og:site_name" content="Samachar Bharti">
+    <meta property="og:title" content="Samachar Bharti | ताज़ा खबरें">
     <meta property="og:description" content="ताज़ा खबरें, ब्रेकिंग न्यूज़ और पूरी रिपोर्ट पढ़ें।">
     <meta property="og:url" content="{{ url('/') }}">
 
-    <meta name="theme-color" content="#c90018">
+    <meta name="theme-color" content="#ed101b">
 
     <style>
         :root {
-            --red: #c90018;
-            --blue: #073b9a;
-            --dark: #202124;
+            --red: #ed101b;
+            --blue: #1239c5;
+            --dark: #172033;
             --muted: #6b7280;
-            --page: #f3f5f8;
-            --border: #e1e5eb;
+            --page: #f4f6fb;
+            --border: #e4e8f0;
         }
 
         * { box-sizing: border-box; }
@@ -57,6 +58,89 @@
             width: 100%;
             margin: auto;
             padding: 0 16px;
+        }
+
+        /* SAMACHAR BHARTI BRAND POLISH */
+        ::selection { background: rgba(18, 57, 197, .16); color: var(--dark); }
+
+        .sb-container { max-width: 1240px; }
+
+        .sb-breaking {
+            border-radius: 8px;
+            box-shadow: 0 3px 14px rgba(23, 32, 51, .035);
+        }
+
+        .sb-breaking-label {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            letter-spacing: .15px;
+        }
+
+        .sb-section-heading {
+            border-bottom-width: 2px;
+            border-image: linear-gradient(90deg, var(--red), rgba(18, 57, 197, .32)) 1;
+        }
+
+        .sb-slider {
+            border: 1px solid rgba(23, 32, 51, .08);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(23, 32, 51, .08);
+        }
+
+        .sb-slide-image, .sb-slide-placeholder { transition: transform .45s ease; }
+        .sb-slide-link:hover .sb-slide-image { transform: scale(1.015); }
+
+        .sb-slide-placeholder {
+            background: radial-gradient(circle at 85% 10%, rgba(255,255,255,.12), transparent 28%),
+                        linear-gradient(135deg, #1239c5 0%, #172033 76%);
+        }
+
+        .sb-slide-caption h2 { text-wrap: balance; }
+
+        .sb-slider-controls button {
+            border: 1px solid rgba(255,255,255,.35);
+            transition: background .2s ease, transform .2s ease;
+        }
+        .sb-slider-controls button:hover {
+            background: var(--red);
+            transform: scale(1.06);
+        }
+
+        .sb-card, .sb-category-card, .sb-side-card {
+            border-radius: 10px;
+            box-shadow: 0 3px 14px rgba(23, 32, 51, .035);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .sb-card:hover, .sb-category-card:hover, .sb-side-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(18, 57, 197, .22);
+            box-shadow: 0 10px 24px rgba(23, 32, 51, .09);
+        }
+
+        .sb-image, .sb-slide-image { background-color: #e9edf5; }
+        .sb-category-card h3 a:hover { color: var(--blue); }
+
+        .sb-ad-slot {
+            border-radius: 8px;
+            background: linear-gradient(135deg, #eef1f7, #f7f8fb);
+        }
+
+        .sb-empty { border-radius: 8px; }
+
+        .sb-pagination a:hover, .sb-pagination span:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        @media (max-width: 768px) {
+            .sb-breaking { gap: 9px; }
+            .sb-slider { border-radius: 9px; }
+            .sb-slide-caption { background: linear-gradient(transparent, rgba(12, 19, 37, .94)); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
         }
 
         /* BREAKING NEWS */
@@ -155,7 +239,7 @@
             display: grid;
             place-items: center;
             height: 440px;
-            background: linear-gradient(135deg, #073b9a, #202124);
+            background: linear-gradient(135deg, #1239c5 0%, #172033 72%);
             color: white;
             font-size: 22px;
             font-weight: 800;
@@ -524,8 +608,8 @@
                 width: 48px;
                 height: 48px;
                 border-radius: 50%;
-                background: #e8a116;
-                color: #172238;
+                background: #ed101b;
+                color: #ffffff;
                 box-shadow: 0 3px 10px rgba(0,0,0,.18);
                 font-size: 25px;
             }
@@ -603,7 +687,7 @@
                                 >
                             @else
                                 <div class="sb-slide-placeholder">
-                                    समाचार भारती न्यूज़
+                                    Samachar Bharti
                                 </div>
                             @endif
 
@@ -655,10 +739,10 @@
         @endif
     </section>
 
-    {{-- FUTURE AD SLOT --}}
+    <!-- {{-- FUTURE AD SLOT --}}
     <div class="sb-ad-slot" aria-label="Advertisement space">
         <span>Advertisement Space<br>भविष्य में यहाँ AdSense या अन्य ad code लगाया जा सकता है।</span>
-    </div>
+    </div> -->
 
     {{-- LATEST NEWS --}}
     <section class="sb-section" id="latest-news">
@@ -681,7 +765,7 @@
                                 >
                             @else
                                 <div class="sb-image-placeholder">
-                                    समाचार भारती न्यूज़
+                                    Samachar Bharti
                                 </div>
                             @endif
                         </a>
@@ -780,10 +864,10 @@
         @endforelse
     </section>
 
-    {{-- SECOND AD SLOT --}}
+    <!-- {{-- SECOND AD SLOT --}}
     <div class="sb-ad-slot" aria-label="Advertisement space">
         <span>Advertisement Space<br>यहाँ future में responsive ad unit लगाया जा सकता है।</span>
-    </div>
+    </div> -->
 
 </main>
 

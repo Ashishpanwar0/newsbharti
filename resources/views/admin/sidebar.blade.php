@@ -1,7 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=3">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>@yield('title', 'NewsBharti Admin Panel')</title>

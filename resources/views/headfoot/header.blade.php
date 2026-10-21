@@ -17,7 +17,7 @@
         <div class="nb-container nb-top-inner">
 
             <a href="{{ route('home') }}" class="nb-logo">
-                News<span>Bharti</span>
+                Samachar <span>Bharti</span>
             </a>
 
             <div class="nb-top-right">
@@ -136,7 +136,8 @@
     /* TOP BAR */
 
     .nb-top {
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #e8ebf2;
+        background: #fff;
     }
 
     .nb-top-inner {
@@ -148,15 +149,37 @@
     }
 
     .nb-logo {
-        color: #c4161c;
-        font-size: 31px;
-        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 0;
+        color: #172033;
+        font-size: 29px;
+        font-weight: 850;
+        letter-spacing: -1px;
+        line-height: 1.1;
         text-decoration: none;
         white-space: nowrap;
     }
 
+    .nb-logo::before {
+        content: "SB";
+        display: inline-grid;
+        width: 43px;
+        height: 43px;
+        place-items: center;
+        margin-right: 11px;
+        border-radius: 12px;
+        color: #fff;
+        background: #ed101b;
+        font-size: 17px;
+        font-weight: 850;
+        letter-spacing: -1px;
+        box-shadow: 0 5px 13px rgba(237, 16, 27, .18);
+    }
+
     .nb-logo span {
-        color: #202124;
+        margin-left: 6px;
+        color: #1239c5;
     }
 
     .nb-top-right {
@@ -180,14 +203,14 @@
     }
 
     .nb-clock-label {
-        color: #c4161c;
+        color: #ed101b;
         font-size: 10px;
         font-weight: 700;
         letter-spacing: 1px;
     }
 
     #nbLiveTime {
-        color: #202124;
+        color: #172033;
         font-size: 13px;
         font-weight: 600;
     }
@@ -195,7 +218,9 @@
     /* DESKTOP NAVIGATION */
 
     .nb-navigation {
-        background: #202124;
+        background: #172033;
+        border-top: 3px solid #ed101b;
+        box-shadow: 0 5px 14px rgba(23, 32, 51, .08);
     }
 
     .nb-menu,
@@ -228,7 +253,7 @@
         border: 0;
         background: transparent;
         color: #fff;
-        padding: 14px 12px;
+        padding: 15px 13px;
         font-family: inherit;
         font-size: 13px;
         font-weight: 600;
@@ -243,7 +268,7 @@
     .nb-sub-toggle:hover,
     .nb-sub-toggle:focus-visible {
         color: #fff;
-        background: #c4161c;
+        background: #ed101b;
     }
 
     .nb-sub-toggle {
@@ -261,15 +286,16 @@
         min-width: 210px;
         max-width: 280px;
         background: #fff;
-        border: 1px solid #e7e7e7;
-        box-shadow: 0 8px 18px rgba(0, 0, 0, .14);
+        border: 1px solid #e4e8f0;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 14px 30px rgba(23, 32, 51, .16);
         z-index: 1001;
     }
 
     .nb-submenu a {
         display: block;
-        padding: 11px 14px;
-        color: #202124;
+        padding: 12px 15px;
+        color: #172033;
         font-size: 13px;
         line-height: 1.5;
         text-decoration: none;
@@ -278,8 +304,8 @@
 
     .nb-submenu a:hover,
     .nb-submenu a:focus-visible {
-        background: #f3f3f3;
-        color: #c4161c;
+        background: #f4f6fb;
+        color: #ed101b;
     }
 
     .nb-menu-item:hover > .nb-submenu,
@@ -325,9 +351,9 @@
         display: none;
         flex: 0 0 auto;
         border: 0;
-        background: #202124;
+        background: #1239c5;
         padding: 10px;
-        border-radius: 5px;
+        border-radius: 10px;
         cursor: pointer;
     }
 
@@ -347,7 +373,31 @@
         }
 
         .nb-logo {
-            font-size: 26px;
+            font-size: 19px;
+        }
+
+        .nb-logo::before {
+            width: 33px;
+            height: 33px;
+            margin-right: 6px;
+            border-radius: 9px;
+            font-size: 13px;
+        }
+
+        .nb-logo span {
+            margin-left: 3px;
+        }
+
+        .nb-logo::before {
+            width: 38px;
+            height: 38px;
+            margin-right: 8px;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .nb-logo span {
+            margin-left: 4px;
         }
 
         .nb-top-right {
@@ -413,7 +463,7 @@
             overflow: visible;
             border: 0;
             box-shadow: none;
-            background: #f5f5f5;
+            background: #f4f6fb;
         }
 
         .nb-menu-item > .nb-submenu {
@@ -425,8 +475,9 @@
         }
 
         .nb-submenu a {
-            padding: 11px 15px;
+            padding: 12px 18px;
             white-space: normal;
+            border-bottom: 1px solid #e7eaf1;
         }
 
         /* On mobile, show all categories in the hamburger menu */
@@ -446,7 +497,19 @@
         }
 
         .nb-logo {
-            font-size: 23px;
+            font-size: 19px;
+        }
+
+        .nb-logo::before {
+            width: 33px;
+            height: 33px;
+            margin-right: 6px;
+            border-radius: 9px;
+            font-size: 13px;
+        }
+
+        .nb-logo span {
+            margin-left: 3px;
         }
 
         .nb-top-right {

@@ -1,15 +1,23 @@
+﻿<?php
 
-public function up(): void
-{
-    Schema::table('news', function (Blueprint $table) {
-        $table->string('author_name')->nullable();
-        $table->text('keywords')->nullable();
-    });
-}
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-public function down(): void
+return new class extends Migration
 {
-    Schema::table('news', function (Blueprint $table) {
-        $table->dropColumn(['author_name', 'keywords']);
-    });
-}
+    public function up(): void
+    {
+        Schema::table('news', function (Blueprint $table) {
+            $table->string('author_name')->nullable();
+            $table->text('keywords')->nullable();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('news', function (Blueprint $table) {
+            $table->dropColumn(['author_name', 'keywords']);
+        });
+    }
+};
